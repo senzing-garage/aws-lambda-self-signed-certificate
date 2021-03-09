@@ -83,7 +83,7 @@ The variables are used throughout the installation procedure.
 
 ```console
 export GIT_ACCOUNT=senzing
-export GIT_REPOSITORY=aws-lambda-docker-self-signed-certificate
+export GIT_REPOSITORY=aws-lambda-docker-self-signed-certificates
 ```
 
 Synthesize environment variables.
