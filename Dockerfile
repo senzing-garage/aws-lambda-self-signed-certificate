@@ -1,7 +1,7 @@
-ARG BASE_IMAGE=senzing/senzing-base:1.5.2
+ARG BASE_IMAGE=public.ecr.aws/lambda/python:3.8
 FROM ${BASE_IMAGE}
 
-ENV REFRESHED_AT=2020-03-01
+ENV REFRESHED_AT=2021-03-09
 
 LABEL Name="senzing/self-signed-certificates" \
       Maintainer="support@senzing.com" \
@@ -9,21 +9,13 @@ LABEL Name="senzing/self-signed-certificates" \
 
 HEALTHCHECK CMD ["/app/healthcheck.sh"]
 
-# Run as "root" for system installation.
+# Install packages via PIP.
 
-USER root
+RUN pip3 install \
+      awslambdaric
 
-# Install packages via apt.
-
-# Copy files from repository.
-
-COPY ./rootfs /
-
-# Make non-root container.
-
-USER 1001
+COPY self-signed-certificates.py   ./
 
 # Runtime execution.
 
-WORKDIR /app
-CMD ["/app/sleep-infinity.sh"]
+CMD ["self-signed-certificates.handler"]
