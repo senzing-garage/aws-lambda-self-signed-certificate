@@ -8,6 +8,8 @@ import json
 import logging
 import os
 import sys
+import time
+import traceback
 
 __all__ = []
 __version__ = "0.1.0"  # See https://www.python.org/dev/peps/pep-0396/
@@ -37,6 +39,12 @@ log_level_parameter = os.getenv("SENZING_LOG_LEVEL", "info").lower()
 log_level = log_level_map.get(log_level_parameter, logging.INFO)
 logging.basicConfig(format=log_format, level=log_level)
 
+# root = logging.getLogger()
+# handler = logging.StreamHandler(sys.stdout)
+# handler.setLevel(logging.DEBUG)
+# handler.setFormatter(log_format)
+# root.addHandler(handler)
+
 # -----------------------------------------------------------------------------
 # Message handling
 # -----------------------------------------------------------------------------
@@ -47,7 +55,6 @@ logging.basicConfig(format=log_format, level=log_level)
 # 7xx Internal error (i.e. logging.error for Server errors)
 # 9xx Debugging (i.e. logging.debug())
 
-
 MESSAGE_INFO = 100
 MESSAGE_WARN = 300
 MESSAGE_ERROR = 700
@@ -57,6 +64,8 @@ message_dictionary = {
     "100": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}I",
     "101": "Event: {0}",
     "102": "Context: {0}",
+    "111": "Event: {0}",
+    "112": "Context: {0}",
     "300": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}W",
     "700": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}E",
     "900": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}D",
@@ -110,13 +119,54 @@ def get_exception():
     }
 
 
+def logging_info(message):
+    print(message)
+
+
+def logging_error(message):
+    print(message)
+
+
+def logging_warning(message):
+    print(message)
+
+
+def logging_debug(message):
+    print(message)
+
+# -----------------------------------------------------------------------------
+# Lambda handler
+# -----------------------------------------------------------------------------
+
+
 def handler(event, context):
 
-    logging.info(message_info(999, "MJD was here"))
-    logging.info(message_info(101, json.dumps(event)))
-    logging.info(message_info(102, context))
-    return 'Hello from AWS Lambda using Python' + sys.version + '!'
+    result = {}
 
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    try:
+        logger.info("Event: {0}".format(json.dumps(event)))
+        if event['RequestType'] in ['Create', 'Update']:
+            properties = event.get('ResourceProperties', {})
+            describe_mount_targets_parameters = properties.get('DescribeMountTargetsParameters', {})
+            result['response'] = 'Hello from AWS Lambda using Python' + sys.version + '!'
+            logger.info("sleeping 10 seconds")
+            time.sleep(10)
+            logger.info("Done")
+    except Exception as e:
+        logger.error(e)
+        traceback.print_exc()
+    finally:
+        pass
+
+
+    logging_info(message_info(101, json.dumps(event)))
+    logging_info(message_info(102, context))
+    logging.info(message_info(111, json.dumps(event)))
+    logging.info(message_info(112, context))
+    return result
 
 # -----------------------------------------------------------------------------
 # Main
@@ -125,13 +175,14 @@ def handler(event, context):
 
 if __name__ == "__main__":
 
+    log_format = '%(asctime)s %(message)s'
+    log_level_parameter = os.getenv("SENZING_LOG_LEVEL", "info").lower()
+    log_level = log_level_map.get(log_level_parameter, logging.INFO)
+    logging.basicConfig(format=log_format, level=log_level)
 
     logging.debug(message_debug(998))
 
     event = {}
-
     context = {}
-
     response = handler(event, context)
-
     print(response)
