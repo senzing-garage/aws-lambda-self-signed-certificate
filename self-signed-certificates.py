@@ -14,9 +14,9 @@ import traceback
 __all__ = []
 __version__ = "0.1.0"  # See https://www.python.org/dev/peps/pep-0396/
 __date__ = '2021-03-09'
-__updated__ = '2021-03-09'
+__updated__ = '2021-03-10'
 
-SENZING_PRODUCT_ID = "5999"  # See https://github.com/Senzing/knowledge-base/blob/master/lists/senzing-product-ids.md
+SENZING_PRODUCT_ID = "5019"  # See https://github.com/Senzing/knowledge-base/blob/master/lists/senzing-product-ids.md
 
 # -----------------------------------------------------------------------------
 # Logging
@@ -38,12 +38,6 @@ log_format = '%(asctime)s %(message)s'
 log_level_parameter = os.getenv("SENZING_LOG_LEVEL", "info").lower()
 log_level = log_level_map.get(log_level_parameter, logging.INFO)
 logging.basicConfig(format=log_format, level=log_level)
-
-# root = logging.getLogger()
-# handler = logging.StreamHandler(sys.stdout)
-# handler.setLevel(logging.DEBUG)
-# handler.setFormatter(log_format)
-# root.addHandler(handler)
 
 # -----------------------------------------------------------------------------
 # Message handling
@@ -161,7 +155,6 @@ def handler(event, context):
     finally:
         pass
 
-
     logging_info(message_info(101, json.dumps(event)))
     logging_info(message_info(102, context))
     logging.info(message_info(111, json.dumps(event)))
@@ -175,14 +168,10 @@ def handler(event, context):
 
 if __name__ == "__main__":
 
-    log_format = '%(asctime)s %(message)s'
-    log_level_parameter = os.getenv("SENZING_LOG_LEVEL", "info").lower()
-    log_level = log_level_map.get(log_level_parameter, logging.INFO)
-    logging.basicConfig(format=log_format, level=log_level)
-
     logging.debug(message_debug(998))
 
     event = {}
     context = {}
+
     response = handler(event, context)
     print(response)
