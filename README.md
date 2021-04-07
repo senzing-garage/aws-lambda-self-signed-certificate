@@ -1,4 +1,4 @@
-# aws-lambda-docker-self-signed-certificate
+# aws-lambda-self-signed-certificate
 
 ## Synopsis
 
@@ -184,21 +184,24 @@ see [Environment Variables](https://github.com/Senzing/knowledge-base/blob/maste
 
 ### Make package
 
-1. xxx
+1. Install dependencies.
+   Example:
 
     ```console
     cd ${GIT_REPOSITORY_DIR}
     pip3 install --target ./package pyOpenSSL
     ```
 
-1. xxx
+1. Compress dependencies.
+   Example:
 
     ```console
     cd ${GIT_REPOSITORY_DIR}/package
     zip -r ../self-signed-certificate.zip .
     ```
 
-1. xxx
+1. Add `self-signed-certificate.py` to compressed file.
+   Example:
 
     ```console
     cd ${GIT_REPOSITORY_DIR}
