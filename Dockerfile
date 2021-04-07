@@ -3,7 +3,7 @@ FROM ${BASE_IMAGE}
 
 ENV REFRESHED_AT=2021-03-09
 
-LABEL Name="senzing/self-signed-certificates" \
+LABEL Name="senzing/self-signed-certificate" \
       Maintainer="support@senzing.com" \
       Version="1.0.0"
 
@@ -14,8 +14,8 @@ HEALTHCHECK CMD ["/app/healthcheck.sh"]
 RUN pip3 install \
       awslambdaric
 
-COPY self-signed-certificates.py   ./
+COPY self_signed_certificate.py   ./
 
 # Runtime execution.
 
-CMD ["self-signed-certificates.handler"]
+CMD ["self_signed_certificate.handler"]

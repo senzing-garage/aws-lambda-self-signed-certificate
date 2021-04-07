@@ -86,7 +86,7 @@ These are "one-time tasks" which may already have been completed.
        Example:
 
         ```console
-        export SENZING_DOWNLOAD_FILE=~/self-signed-certificate.py
+        export SENZING_DOWNLOAD_FILE=~/self_signed_certificate.py
         ```
 
     1. Download file.
@@ -95,7 +95,7 @@ These are "one-time tasks" which may already have been completed.
         ```console
         curl -X GET \
           --output ${SENZING_DOWNLOAD_FILE} \
-          https://raw.githubusercontent.com/Senzing/aws-lambda-self-signed-certificate/master/self-signed-certificate.py
+          https://raw.githubusercontent.com/Senzing/aws-lambda-self-signed-certificate/master/self_signed_certificate.py
         ```
 
     1. Make file executable.
@@ -200,12 +200,12 @@ see [Environment Variables](https://github.com/Senzing/knowledge-base/blob/maste
     zip -r ../self-signed-certificate.zip .
     ```
 
-1. Add `self-signed-certificate.py` to compressed file.
+1. Add `self_signed_certificate.py` to compressed file.
    Example:
 
     ```console
     cd ${GIT_REPOSITORY_DIR}
-    zip -g self-signed-certificate.zip self-signed-certificate.py
+    zip -g self-signed-certificate.zip self_signed_certificate.py
     ```
 
 #### Make package references
@@ -309,7 +309,7 @@ see [Environment Variables](https://github.com/Senzing/knowledge-base/blob/maste
       --tty \
       --entrypoint /aws-lambda/aws-lambda-rie \
       senzing/self-signed-certificate \
-        /var/lang/bin/python -m awslambdaric self-signed-certificate.handler
+        /var/lang/bin/python -m awslambdaric self_signed_certificate.handler
     ```
 
 1. xXXX

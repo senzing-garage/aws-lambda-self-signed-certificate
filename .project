@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>aws-lambda-docker-self-signed-certificates</name>
+	<name>aws-lambda-self-signed-certificate</name>
 	<comment></comment>
 	<projects>
 	</projects>

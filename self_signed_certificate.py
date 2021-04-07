@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # -----------------------------------------------------------------------------
-# self-signed-certificates.py Loader for creating self-signed certificates.
+# self_signed_certificate.py Loader for creating self-signed certificates.
 # -----------------------------------------------------------------------------
 
 import base64
@@ -18,7 +18,7 @@ from OpenSSL import crypto
 __all__ = []
 __version__ = "0.1.0"  # See https://www.python.org/dev/peps/pep-0396/
 __date__ = '2021-04-06'
-__updated__ = '2021-04-06'
+__updated__ = '2021-04-07'
 
 SENZING_PRODUCT_ID = "5019"  # See https://github.com/Senzing/knowledge-base/blob/master/lists/senzing-product-ids.md
 
