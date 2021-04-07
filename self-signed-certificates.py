@@ -4,19 +4,26 @@
 # self-signed-certificates.py Loader for creating self-signed certificates.
 # -----------------------------------------------------------------------------
 
+import base64
 import json
 import logging
 import os
+import random
 import sys
 import time
 import traceback
 
+from OpenSSL import crypto
+
 __all__ = []
 __version__ = "0.1.0"  # See https://www.python.org/dev/peps/pep-0396/
-__date__ = '2021-03-09'
-__updated__ = '2021-03-10'
+__date__ = '2021-04-06'
+__updated__ = '2021-04-06'
 
 SENZING_PRODUCT_ID = "5019"  # See https://github.com/Senzing/knowledge-base/blob/master/lists/senzing-product-ids.md
+
+NINE_YEARS_IN_SECONDS = 9 * 365 * 24 * 60 * 60
+TEN_YEARS_IN_SECONDS = 10 * 365 * 24 * 60 * 60
 
 # -----------------------------------------------------------------------------
 # Logging
@@ -58,8 +65,6 @@ message_dictionary = {
     "100": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}I",
     "101": "Event: {0}",
     "102": "Context: {0}",
-    "111": "Event: {0}",
-    "112": "Context: {0}",
     "300": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}W",
     "700": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}E",
     "900": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}D",
@@ -133,6 +138,135 @@ def logging_debug(message):
 # -----------------------------------------------------------------------------
 
 
+def get_new_key():
+
+    result = crypto.PKey()
+    result.generate_key(crypto.TYPE_RSA, 2048)
+    return result
+
+
+def get_certificate_authority_certificate(public_key):
+
+    # Create certificate.
+
+    result = crypto.X509()
+    result.set_version(2)
+    result.set_serial_number(random.randrange(100000))
+
+    # Set subject.
+
+    subject = result.get_subject()
+    subject.C = "US"
+    subject.ST = "California"
+    subject.L = "San Francisco"
+    subject.O = "MyOrganization"
+    subject.OU = "MyOrganizationalUnit"
+    subject.CN = "My own Root CA"
+
+    # Add extensions.
+
+    result.add_extensions([
+        crypto.X509Extension(
+            b"subjectKeyIdentifier",
+            False,
+            b"hash",
+            subject=result),
+    ])
+    result.add_extensions([
+        crypto.X509Extension(
+            b"authorityKeyIdentifier",
+            False,
+            b"keyid:always",
+            issuer=result),
+    ])
+    result.add_extensions([
+        crypto.X509Extension(
+            b"basicConstraints",
+            False,
+            b"CA:TRUE"),
+        crypto.X509Extension(
+            b"keyUsage",
+            False,
+            b"keyCertSign, cRLSign"),
+    ])
+
+    # Set expiry.
+
+    result.gmtime_adj_notBefore(0)
+    result.gmtime_adj_notAfter(TEN_YEARS_IN_SECONDS)
+
+    # Sign and seal.
+
+    result.set_pubkey(public_key)
+    result.set_issuer(subject)
+    result.sign(public_key, 'sha256')
+
+    return result
+
+
+def get_certificate(public_key, ca_key, certificate_authority_certificate):
+
+    # Crete certificate.
+
+    result = crypto.X509()
+    result.set_version(2)
+    result.set_serial_number(random.randrange(100000))
+
+    # Set subject.
+
+    subject = result.get_subject()
+    subject.C = "US"
+    subject.ST = "California"
+    subject.L = "San Francisco"
+    subject.O = "MyOrganization"
+    subject.OU = "MyOrganizationalUnit"
+    subject.CN = "example.com"
+
+    # Add extensions.
+
+    result.add_extensions([
+        crypto.X509Extension(b"basicConstraints", False, b"CA:FALSE"),
+        crypto.X509Extension(b"subjectKeyIdentifier", False, b"hash", subject=result),
+    ])
+    result.add_extensions([
+        crypto.X509Extension(
+            b"authorityKeyIdentifier",
+            False,
+            b"keyid:always",
+            issuer=certificate_authority_certificate),
+        crypto.X509Extension(
+            b"extendedKeyUsage",
+            False,
+            b"serverAuth"),
+        crypto.X509Extension(
+            b"keyUsage",
+            False,
+            b"digitalSignature"),
+    ])
+    result.add_extensions([
+        crypto.X509Extension(b'subjectAltName', False,
+            ','.join([
+                'DNS:*.example.com'
+    ]).encode())])
+
+    # Set expiry.
+
+    result.gmtime_adj_notBefore(0)
+    result.gmtime_adj_notAfter(NINE_YEARS_IN_SECONDS)
+
+    # Sign and seal.
+
+    result.set_pubkey(public_key)
+    result.set_issuer(certificate_authority_certificate.get_subject())
+    result.sign(ca_key, 'sha256')
+
+    return result
+
+# -----------------------------------------------------------------------------
+# Lambda handler
+# -----------------------------------------------------------------------------
+
+
 def handler(event, context):
 
     result = {}
@@ -142,23 +276,24 @@ def handler(event, context):
 
     try:
         logger.info("Event: {0}".format(json.dumps(event)))
-        if event['RequestType'] in ['Create', 'Update']:
+        if event.get('RequestType') in ['Create', 'Update']:
             properties = event.get('ResourceProperties', {})
             describe_mount_targets_parameters = properties.get('DescribeMountTargetsParameters', {})
-            result['response'] = 'Hello from AWS Lambda using Python' + sys.version + '!'
-            logger.info("sleeping 10 seconds")
-            time.sleep(10)
-            logger.info("Done")
+
+            certificate_authority_certificate_key = get_new_key()
+            certificate_authority_certificate = get_certificate_authority_certificate(certificate_authority_certificate_key)
+            certificate_key = get_new_key()
+            certificate = get_certificate(certificate_key, certificate_authority_certificate_key, certificate_authority_certificate)
+
+            result['certificate'] = base64.b64encode(crypto.dump_certificate(crypto.FILETYPE_PEM, certificate)).decode('utf-8')
+            result['privateKey'] = base64.b64encode(crypto.dump_privatekey(crypto.FILETYPE_PEM, certificate_key)).decode('utf-8')
+
     except Exception as e:
         logger.error(e)
         traceback.print_exc()
     finally:
         pass
 
-    logging_info(message_info(101, json.dumps(event)))
-    logging_info(message_info(102, context))
-    logging.info(message_info(111, json.dumps(event)))
-    logging.info(message_info(112, context))
     return result
 
 # -----------------------------------------------------------------------------
@@ -170,8 +305,10 @@ if __name__ == "__main__":
 
     logging.debug(message_debug(998))
 
-    event = {}
+    event = {
+        "RequestType": "Create"
+    }
     context = {}
 
     response = handler(event, context)
-    print(response)
+    print(json.dumps(response))
