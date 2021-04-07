@@ -192,6 +192,7 @@ see [Environment Variables](https://github.com/Senzing/knowledge-base/blob/maste
     pip3 install \
         --target ./package \
         cffi \
+        cfnresponse \
         pyOpenSSL
     ```
 

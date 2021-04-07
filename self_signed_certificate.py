@@ -5,6 +5,7 @@
 # -----------------------------------------------------------------------------
 
 import base64
+import cfnresponse
 import json
 import logging
 import os
@@ -14,6 +15,7 @@ import time
 import traceback
 
 from OpenSSL import crypto
+from json import JSONEncoder
 
 __all__ = []
 __version__ = "0.1.0"  # See https://www.python.org/dev/peps/pep-0396/
@@ -133,6 +135,17 @@ def logging_warning(message):
 
 def logging_debug(message):
     print(message)
+
+# -----------------------------------------------------------------------------
+# Helper classes
+# -----------------------------------------------------------------------------
+
+
+class DateTimeEncoder(JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, (datetime.date, datetime.datetime)):
+            return obj.isoformat()
 
 # -----------------------------------------------------------------------------
 # Helper functions
@@ -277,32 +290,40 @@ def get_certificate(public_key, ca_key, certificate_authority_certificate):
 
 def handler(event, context):
 
-    result = {}
-
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
+    result = cfnresponse.SUCCESS
+    response = {}
+
     try:
         logger.info("Event: {0}".format(json.dumps(event)))
+        logger.info("Context: {0}".format(json.dumps(context)))
+
         if event.get('RequestType') in ['Create', 'Update']:
             properties = event.get('ResourceProperties', {})
             describe_mount_targets_parameters = properties.get('DescribeMountTargetsParameters', {})
+
+            logger.info("Step 1")
 
             certificate_authority_certificate_key = get_new_key()
             certificate_authority_certificate = get_certificate_authority_certificate(certificate_authority_certificate_key)
             certificate_key = get_new_key()
             certificate = get_certificate(certificate_key, certificate_authority_certificate_key, certificate_authority_certificate)
 
-            result['certificate'] = base64.b64encode(crypto.dump_certificate(crypto.FILETYPE_PEM, certificate)).decode('utf-8')
-            result['privateKey'] = base64.b64encode(crypto.dump_privatekey(crypto.FILETYPE_PEM, certificate_key)).decode('utf-8')
+            logger.info("Step 2")
+
+            response['certificate'] = base64.b64encode(crypto.dump_certificate(crypto.FILETYPE_PEM, certificate)).decode('utf-8')
+            response['privateKey'] = base64.b64encode(crypto.dump_privatekey(crypto.FILETYPE_PEM, certificate_key)).decode('utf-8')
+
+            logger.info("Response: {0}".format(json.dumps(response, cls=DateTimeEncoder)))
 
     except Exception as e:
         logger.error(e)
         traceback.print_exc()
+        result = cfnresponse.FAILED
     finally:
-        pass
-
-    return result
+        cfnresponse.send(event, context, result, response)
 
 # -----------------------------------------------------------------------------
 # Main
