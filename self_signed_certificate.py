@@ -4,8 +4,8 @@
 # self_signed_certificate.py Loader for creating self-signed certificates.
 # -----------------------------------------------------------------------------
 
-import base64
 import cfnresponse
+import datetime
 import json
 import logging
 import os
@@ -155,7 +155,7 @@ class DateTimeEncoder(JSONEncoder):
 def get_new_key():
 
     result = crypto.PKey()
-    result.generate_key(crypto.TYPE_RSA, 2048)
+    result.generate_key(crypto.TYPE_RSA, 1024)
     return result
 
 
@@ -298,7 +298,6 @@ def handler(event, context):
 
     try:
         logger.info("Event: {0}".format(json.dumps(event)))
-        logger.info("Context: {0}".format(json.dumps(context)))
 
         if event.get('RequestType') in ['Create', 'Update']:
             properties = event.get('ResourceProperties', {})
@@ -313,8 +312,8 @@ def handler(event, context):
 
             logger.info("Step 2")
 
-            response['certificate'] = base64.b64encode(crypto.dump_certificate(crypto.FILETYPE_PEM, certificate)).decode('utf-8')
-            response['privateKey'] = base64.b64encode(crypto.dump_privatekey(crypto.FILETYPE_PEM, certificate_key)).decode('utf-8')
+            response['CertificateBody'] = crypto.dump_certificate(crypto.FILETYPE_PEM, certificate).decode('utf-8')
+            response['PrivateKey'] = crypto.dump_privatekey(crypto.FILETYPE_PEM, certificate_key).decode('utf-8')
 
             logger.info("Response: {0}".format(json.dumps(response, cls=DateTimeEncoder)))
 
