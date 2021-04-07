@@ -189,7 +189,10 @@ see [Environment Variables](https://github.com/Senzing/knowledge-base/blob/maste
 
     ```console
     cd ${GIT_REPOSITORY_DIR}
-    pip3 install --target ./package pyOpenSSL
+    pip3 install \
+        --target ./package \
+        cffi \
+        pyOpenSSL
     ```
 
 1. Compress dependencies.
