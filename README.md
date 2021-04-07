@@ -26,7 +26,7 @@
     export AWS_SECRET_ACCESS_KEY=$(jq --raw-output ".Credentials.SecretAccessKey" ~/aws-sts-get-session-token.json)
     export AWS_SESSION_TOKEN=$(jq --raw-output ".Credentials.SessionToken" ~/aws-sts-get-session-token.json)
     export AWS_DEFAULT_REGION=$(aws configure get default.region)
-```
+    ```
 
 
 1. Login
