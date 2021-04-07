@@ -22,8 +22,9 @@ __updated__ = '2021-04-06'
 
 SENZING_PRODUCT_ID = "5019"  # See https://github.com/Senzing/knowledge-base/blob/master/lists/senzing-product-ids.md
 
-NINE_YEARS_IN_SECONDS = 9 * 365 * 24 * 60 * 60
-TEN_YEARS_IN_SECONDS = 10 * 365 * 24 * 60 * 60
+ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60
+NINE_YEARS_IN_SECONDS = 9 * ONE_YEAR_IN_SECONDS
+TEN_YEARS_IN_SECONDS = 10 * ONE_YEAR_IN_SECONDS
 
 # -----------------------------------------------------------------------------
 # Logging
@@ -134,7 +135,7 @@ def logging_debug(message):
     print(message)
 
 # -----------------------------------------------------------------------------
-# Lambda handler
+# Helper functions
 # -----------------------------------------------------------------------------
 
 
@@ -225,8 +226,15 @@ def get_certificate(public_key, ca_key, certificate_authority_certificate):
     # Add extensions.
 
     result.add_extensions([
-        crypto.X509Extension(b"basicConstraints", False, b"CA:FALSE"),
-        crypto.X509Extension(b"subjectKeyIdentifier", False, b"hash", subject=result),
+        crypto.X509Extension(
+            b"basicConstraints",
+            False,
+            b"CA:FALSE"),
+        crypto.X509Extension(
+            b"subjectKeyIdentifier",
+            False,
+            b"hash",
+            subject=result),
     ])
     result.add_extensions([
         crypto.X509Extension(
@@ -302,8 +310,6 @@ def handler(event, context):
 
 
 if __name__ == "__main__":
-
-    logging.debug(message_debug(998))
 
     event = {
         "RequestType": "Create"
