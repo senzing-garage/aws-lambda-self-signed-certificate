@@ -1,4 +1,4 @@
-# aws-lambda-docker-self-signed-certificates
+# aws-lambda-docker-self-signed-certificate
 
 ## Synopsis
 
@@ -86,7 +86,7 @@ These are "one-time tasks" which may already have been completed.
        Example:
 
         ```console
-        export SENZING_DOWNLOAD_FILE=~/self-signed-certificates.py
+        export SENZING_DOWNLOAD_FILE=~/self-signed-certificate.py
         ```
 
     1. Download file.
@@ -95,7 +95,7 @@ These are "one-time tasks" which may already have been completed.
         ```console
         curl -X GET \
           --output ${SENZING_DOWNLOAD_FILE} \
-          https://raw.githubusercontent.com/Senzing/aws-lambda-docker-self-signed-certificates/master/self-signed-certificates.py
+          https://raw.githubusercontent.com/Senzing/aws-lambda-self-signed-certificate/master/self-signed-certificate.py
         ```
 
     1. Make file executable.
@@ -175,7 +175,7 @@ see [Environment Variables](https://github.com/Senzing/knowledge-base/blob/maste
 
     ```console
     export GIT_ACCOUNT=senzing
-    export GIT_REPOSITORY=aws-lambda-docker-self-signed-certificates
+    export GIT_REPOSITORY=aws-lambda-self-signed-certificate
     export GIT_ACCOUNT_DIR=~/${GIT_ACCOUNT}.git
     export GIT_REPOSITORY_DIR="${GIT_ACCOUNT_DIR}/${GIT_REPOSITORY}"
     ```
@@ -195,14 +195,14 @@ see [Environment Variables](https://github.com/Senzing/knowledge-base/blob/maste
 
     ```console
     cd ${GIT_REPOSITORY_DIR}/package
-    zip -r ../self-signed-certificates.zip .
+    zip -r ../self-signed-certificate.zip .
     ```
 
 1. xxx
 
     ```console
     cd ${GIT_REPOSITORY_DIR}
-    zip -g self-signed-certificates.zip self-signed-certificates.py
+    zip -g self-signed-certificate.zip self-signed-certificate.py
     ```
 
 #### Make package references
@@ -305,8 +305,8 @@ see [Environment Variables](https://github.com/Senzing/knowledge-base/blob/maste
       --rm \
       --tty \
       --entrypoint /aws-lambda/aws-lambda-rie \
-      senzing/self-signed-certificates \
-        /var/lang/bin/python -m awslambdaric self-signed-certificates.handler
+      senzing/self-signed-certificate \
+        /var/lang/bin/python -m awslambdaric self-signed-certificate.handler
     ```
 
 1. xXXX
