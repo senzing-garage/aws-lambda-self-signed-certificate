@@ -1,11 +1,12 @@
 #! /usr/bin/env python3
 
 # -----------------------------------------------------------------------------
-# self_signed_certificate.py Loader for creating self-signed certificates.
+# self_signed_certificate.py for creating self-signed certificates.
 # -----------------------------------------------------------------------------
 
-import cfnresponse
+from OpenSSL import crypto
 import datetime
+from json import JSONEncoder
 import json
 import logging
 import os
@@ -14,8 +15,7 @@ import sys
 import time
 import traceback
 
-from OpenSSL import crypto
-from json import JSONEncoder
+import cfnresponse
 
 __all__ = []
 __version__ = "1.0.0"  # See https://www.python.org/dev/peps/pep-0396/
@@ -68,9 +68,11 @@ message_dictionary = {
     "100": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}I",
     "101": "Event: {0}",
     "102": "Context: {0}",
+    "103": "Response: {0}",
     "300": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}W",
     "700": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}E",
     "900": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}D",
+    "997": "Exception: {0}",
     "998": "Debugging enabled.",
     "999": "{0}",
 }
@@ -120,28 +122,13 @@ def get_exception():
         "traceback": traceback,
     }
 
-
-def logging_info(message):
-    print(message)
-
-
-def logging_error(message):
-    print(message)
-
-
-def logging_warning(message):
-    print(message)
-
-
-def logging_debug(message):
-    print(message)
-
 # -----------------------------------------------------------------------------
 # Helper functions
 # -----------------------------------------------------------------------------
 
 
 def get_new_key(key_size=1024):
+    """ Create an "empty" key of requested length. """
 
     result = crypto.PKey()
     result.generate_key(crypto.TYPE_RSA, key_size)
@@ -149,6 +136,7 @@ def get_new_key(key_size=1024):
 
 
 def get_certificate_authority_certificate(public_key, subject_dict):
+    """ Create a self-signed Certificate Authority (CA) certificate. """
 
     # Create certificate.
 
@@ -208,6 +196,7 @@ def get_certificate_authority_certificate(public_key, subject_dict):
 
 
 def get_certificate(public_key, ca_key, certificate_authority_certificate, subject_dict):
+    """ Create a self-signed X.509 certificate. """
 
     # Create certificate.
 
@@ -254,10 +243,13 @@ def get_certificate(public_key, ca_key, certificate_authority_certificate, subje
             b"digitalSignature"),
     ])
     result.add_extensions([
-        crypto.X509Extension(b'subjectAltName', False,
+        crypto.X509Extension(
+            b'subjectAltName',
+            False,
             ','.join([
                 'DNS:*.example.com'
-    ]).encode())])
+                ]).encode())
+    ])
 
     # Set expiry.
 
@@ -278,6 +270,7 @@ def get_certificate(public_key, ca_key, certificate_authority_certificate, subje
 
 
 def handler(event, context):
+    """ Function to be called by AWS lambda. """
 
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
@@ -286,7 +279,7 @@ def handler(event, context):
     response = {}
 
     try:
-        logger.info("Event: {0}".format(json.dumps(event)))
+        logger.info(message_info(101, json.dumps(event)))
 
         if event.get('RequestType') in ['Create', 'Update']:
 
@@ -323,10 +316,10 @@ def handler(event, context):
             response['CertificateBody'] = crypto.dump_certificate(crypto.FILETYPE_PEM, certificate).decode('utf-8')
             response['PrivateKey'] = crypto.dump_privatekey(crypto.FILETYPE_PEM, certificate_key).decode('utf-8')
 
-        logger.info("Response: {0}".format(json.dumps(response)))
+        logger.info(message_info(103, json.dumps(response)))
 
     except Exception as e:
-        logger.error(e)
+        logger.error(message_error(997, e))
         traceback.print_exc()
         result = cfnresponse.FAILED
     finally:
@@ -334,6 +327,7 @@ def handler(event, context):
 
 # -----------------------------------------------------------------------------
 # Main
+#  - Used only in testing.
 # -----------------------------------------------------------------------------
 
 
@@ -347,5 +341,4 @@ if __name__ == "__main__":
 
     # Note: This will error because of cfnresponse.send() not having a context "log_stream_name".
 
-    response = handler(event, context)
-    print(json.dumps(response))
+    handler(event, context)
