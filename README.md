@@ -271,10 +271,8 @@ If not the python packages may not be the correct version.
     ```console
     cd ${GIT_REPOSITORY_DIR}
     pip3 install \
-        --target ./package \
-        cffi \
-        cfnresponse \
-        pyOpenSSL
+        --requirement requirement.txt \
+        --target ./package
     ```
 
 1. Compress dependencies.
