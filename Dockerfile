@@ -12,7 +12,10 @@ HEALTHCHECK CMD ["/app/healthcheck.sh"]
 # Install packages via PIP.
 
 RUN pip3 install \
-      awslambdaric
+      awslambdaric \
+      cffi \
+      cfnresponse \
+      pyOpenSSL
 
 COPY self_signed_certificate.py   ./
 

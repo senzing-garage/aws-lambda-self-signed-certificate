@@ -246,18 +246,7 @@ If not the python packages may not be the correct version.
 
     Note: `sudo make docker-build-development-cache` can be used to create cached Docker layers.
 
-
-## Advanced
-
-## Errors
-
-1. See [docs/errors.md](docs/errors.md).
-
-## References
-
-
-
-## XXX
+### Test Docker image
 
 1. Download
    [AWS Lambda Runtime Interface Emulator](https://github.com/aws/aws-lambda-runtime-interface-emulator)
@@ -270,10 +259,7 @@ If not the python packages may not be the correct version.
     chmod +x ~/aws-lambda-rie/aws-lambda-rie
     ```
 
-
-
-
-1. XXXX
+1. Set AWS environment variables.
    Example:
 
     ```console
@@ -282,7 +268,6 @@ If not the python packages may not be the correct version.
     export AWS_SESSION_TOKEN=$(jq --raw-output ".Credentials.SessionToken" ~/aws-sts-get-session-token.json)
     export AWS_DEFAULT_REGION=$(aws configure get default.region)
     ```
-
 
 1. Login
    Example:
@@ -294,14 +279,6 @@ If not the python packages may not be the correct version.
       --username AWS \
       --password-stdin public.ecr.aws/senzing
     ```
-
-1. XXXX
-   Example:
-
-    ```console
-    ```
-
-
 
 1. Download
    [AWS Lambda Runtime Interface Emulator](https://github.com/aws/aws-lambda-runtime-interface-emulator)
@@ -325,10 +302,35 @@ If not the python packages may not be the correct version.
 
     ```console
     curl -v -X POST \
-      -d '{}' \
+      --data '{"RequestType": "Create", "ResponseURL": "", "StackId": "", "RequestId": "", "LogicalResourceId": ""}' \
       http://localhost:9001/2015-03-31/functions/function/invocations
 
     ```
 
+1. xXXX
+   Example:
+
+    ```console
+    curl -v -X POST \
+      http://localhost:9001/2015-03-31/functions/function/invocations \
+      --data-binary @- << EOF
+        {
+          "RequestType": "Create",
+          "ResponseURL": "",
+          "StackId": "",
+          "RequestId": "",
+          "LogicalResourceId": ""
+        }
+    EOF
+
+    ```
+
+## Advanced
+
+## Errors
+
+1. See [docs/errors.md](docs/errors.md).
+
+## References
 
 1. https://pypi.org/project/awslambdaric/

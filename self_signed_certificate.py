@@ -325,6 +325,8 @@ def handler(event, context):
     finally:
         cfnresponse.send(event, context, result, response)
 
+    return response
+
 # -----------------------------------------------------------------------------
 # Main
 #  - Used only in testing.
