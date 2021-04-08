@@ -21,4 +21,4 @@ COPY self_signed_certificate.py   ./
 
 # Runtime execution.
 
-CMD ["self_signed_certificate.handler"]
+ENTRYPOINT ["/var/task/self_signed_certificate.py"]

@@ -272,7 +272,18 @@ logging into AWS Elastic Container Registry (ECR) is required.
 
 ### Test Docker image
 
-1. Download
+1. A simple test.
+   Example:
+
+    ```console
+    docker run \
+      --interactive \
+      --rm \
+      --tty \
+      senzing/self-signed-certificate
+    ```
+
+1. To prepare for a more sophisticate test, download the
    [AWS Lambda Runtime Interface Emulator](https://github.com/aws/aws-lambda-runtime-interface-emulator)
    and make executable.
    Example:
@@ -283,7 +294,7 @@ logging into AWS Elastic Container Registry (ECR) is required.
     chmod +x ~/aws-lambda-rie/aws-lambda-rie
     ```
 
-1. Run docker container.
+1. Run docker container to start a service.
    Example:
 
     ```console
@@ -298,7 +309,7 @@ logging into AWS Elastic Container Registry (ECR) is required.
         /var/lang/bin/python -m awslambdaric self_signed_certificate.handler
     ```
 
-1. Call the lambda.
+1. In a separate terminal window, call the lambda.
    Example:
 
     ```console
