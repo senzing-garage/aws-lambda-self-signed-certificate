@@ -293,6 +293,8 @@ If not the python packages may not be the correct version.
     zip -g self-signed-certificate.zip self_signed_certificate.py
     ```
 
+1. Upload `self-signed-certificate.zip` to AWS S3.
+
 ## Advanced
 
 ## Errors
