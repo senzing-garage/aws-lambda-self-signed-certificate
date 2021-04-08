@@ -18,9 +18,9 @@ from OpenSSL import crypto
 from json import JSONEncoder
 
 __all__ = []
-__version__ = "0.1.0"  # See https://www.python.org/dev/peps/pep-0396/
+__version__ = "1.0.0"  # See https://www.python.org/dev/peps/pep-0396/
 __date__ = '2021-04-06'
-__updated__ = '2021-04-07'
+__updated__ = '2021-04-08'
 
 SENZING_PRODUCT_ID = "5019"  # See https://github.com/Senzing/knowledge-base/blob/master/lists/senzing-product-ids.md
 
@@ -137,29 +137,18 @@ def logging_debug(message):
     print(message)
 
 # -----------------------------------------------------------------------------
-# Helper classes
-# -----------------------------------------------------------------------------
-
-
-class DateTimeEncoder(JSONEncoder):
-
-    def default(self, obj):
-        if isinstance(obj, (datetime.date, datetime.datetime)):
-            return obj.isoformat()
-
-# -----------------------------------------------------------------------------
 # Helper functions
 # -----------------------------------------------------------------------------
 
 
-def get_new_key():
+def get_new_key(key_size=1024):
 
     result = crypto.PKey()
-    result.generate_key(crypto.TYPE_RSA, 1024)
+    result.generate_key(crypto.TYPE_RSA, key_size)
     return result
 
 
-def get_certificate_authority_certificate(public_key):
+def get_certificate_authority_certificate(public_key, subject_dict):
 
     # Create certificate.
 
@@ -170,12 +159,12 @@ def get_certificate_authority_certificate(public_key):
     # Set subject.
 
     subject = result.get_subject()
-    subject.C = "US"
-    subject.ST = "California"
-    subject.L = "San Francisco"
-    subject.O = "MyOrganization"
-    subject.OU = "MyOrganizationalUnit"
-    subject.CN = "My own Root CA"
+    subject.C = subject_dict.get('C')
+    subject.CN = subject_dict.get('CNca')
+    subject.L = subject_dict.get('L')
+    subject.O = subject_dict.get('O')
+    subject.OU = subject_dict.get('OU')
+    subject.ST = subject_dict.get('ST')
 
     # Add extensions.
 
@@ -218,9 +207,9 @@ def get_certificate_authority_certificate(public_key):
     return result
 
 
-def get_certificate(public_key, ca_key, certificate_authority_certificate):
+def get_certificate(public_key, ca_key, certificate_authority_certificate, subject_dict):
 
-    # Crete certificate.
+    # Create certificate.
 
     result = crypto.X509()
     result.set_version(2)
@@ -229,12 +218,12 @@ def get_certificate(public_key, ca_key, certificate_authority_certificate):
     # Set subject.
 
     subject = result.get_subject()
-    subject.C = "US"
-    subject.ST = "California"
-    subject.L = "San Francisco"
-    subject.O = "MyOrganization"
-    subject.OU = "MyOrganizationalUnit"
-    subject.CN = "example.com"
+    subject.C = subject_dict.get('C')
+    subject.CN = subject_dict.get('CN')
+    subject.L = subject_dict.get('L')
+    subject.O = subject_dict.get('O')
+    subject.OU = subject_dict.get('OU')
+    subject.ST = subject_dict.get('ST')
 
     # Add extensions.
 
@@ -300,22 +289,41 @@ def handler(event, context):
         logger.info("Event: {0}".format(json.dumps(event)))
 
         if event.get('RequestType') in ['Create', 'Update']:
+
+            # Get input parameters.
+
             properties = event.get('ResourceProperties', {})
-            describe_mount_targets_parameters = properties.get('DescribeMountTargetsParameters', {})
+            certificate_authority_key_size = int(properties.get('CertificateAuthorityKeySize', 1024))
+            certificate_key_size = int(properties.get('CertificateKeySize', 1024))
 
-            logger.info("Step 1")
+            # Mock up a subject, using input parameters if supplied.
 
-            certificate_authority_certificate_key = get_new_key()
-            certificate_authority_certificate = get_certificate_authority_certificate(certificate_authority_certificate_key)
-            certificate_key = get_new_key()
-            certificate = get_certificate(certificate_key, certificate_authority_certificate_key, certificate_authority_certificate)
+            subject = {
+                "C": properties.get('SubjectCountryName', 'US'),
+                "CN": properties.get('SubjectCommonName', 'CommonName'),
+                "CNca": properties.get('SubjectCommonNameCA', 'Self CA'),
+                "L": properties.get('SubjectLocality', 'City'),
+                "O": properties.get('SubjectOrganization', 'Organization'),
+                "OU": properties.get('SubjectOrganizationalUnit', 'OrganizationalUnit'),
+                "ST": properties.get('SubjectState', 'State'),
+            }
 
-            logger.info("Step 2")
+            # Create mock Certificate Authority certificate.
+
+            certificate_authority_certificate_key = get_new_key(certificate_authority_key_size)
+            certificate_authority_certificate = get_certificate_authority_certificate(certificate_authority_certificate_key, subject)
+
+            # Create mock X.509 certificate.
+
+            certificate_key = get_new_key(certificate_key_size)
+            certificate = get_certificate(certificate_key, certificate_authority_certificate_key, certificate_authority_certificate, subject)
+
+            # Craft the response.
 
             response['CertificateBody'] = crypto.dump_certificate(crypto.FILETYPE_PEM, certificate).decode('utf-8')
             response['PrivateKey'] = crypto.dump_privatekey(crypto.FILETYPE_PEM, certificate_key).decode('utf-8')
 
-            logger.info("Response: {0}".format(json.dumps(response, cls=DateTimeEncoder)))
+        logger.info("Response: {0}".format(json.dumps(response)))
 
     except Exception as e:
         logger.error(e)
@@ -332,9 +340,12 @@ def handler(event, context):
 if __name__ == "__main__":
 
     event = {
-        "RequestType": "Create"
+        "RequestType": "Create",
+        "ResponseURL": ""
     }
     context = {}
+
+    # Note: This will error because of cfnresponse.send() not having a context "log_stream_name".
 
     response = handler(event, context)
     print(json.dumps(response))

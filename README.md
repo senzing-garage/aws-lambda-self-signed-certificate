@@ -184,6 +184,10 @@ see [Environment Variables](https://github.com/Senzing/knowledge-base/blob/maste
 
 ### Make package
 
+Make sure that the `python3 --version` used to run the `pip3 install` command is the same
+as the python version seen in the AWS Lambda definition (i.e. the `Runtime:` parameter).
+If not the python packages may not be the correct version.
+
 1. Install dependencies.
    Example:
 
