@@ -271,7 +271,7 @@ If not the python packages may not be the correct version.
     ```console
     cd ${GIT_REPOSITORY_DIR}
     pip3 install \
-        --requirement requirement.txt \
+        --requirement requirements.txt \
         --target ./package
     ```
 
