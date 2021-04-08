@@ -9,6 +9,10 @@ LABEL Name="senzing/self-signed-certificate" \
 
 HEALTHCHECK CMD ["/app/healthcheck.sh"]
 
+# Run as "root" for system installation.
+
+USER root
+
 # Install packages via PIP.
 
 RUN pip3 install \
@@ -17,8 +21,17 @@ RUN pip3 install \
       cfnresponse \
       pyOpenSSL
 
-COPY self_signed_certificate.py   ./
+# Copy files from repository.
+
+COPY ./rootfs /
+COPY self_signed_certificate.py ./
+
+# Make non-root container.
+
+USER 1001
 
 # Runtime execution.
+
+ENV SENZING_DOCKER_LAUNCHED=true
 
 ENTRYPOINT ["/var/task/self_signed_certificate.py"]
