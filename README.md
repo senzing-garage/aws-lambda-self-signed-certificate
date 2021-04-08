@@ -15,29 +15,20 @@ AWS Cloudformation.
 1. [Preamble](#preamble)
     1. [Legend](#legend)
 1. [Related artifacts](#related-artifacts)
-1. [Expectations](#expectations)
 1. [Demonstrate using Command Line Interface](#demonstrate-using-command-line-interface)
     1. [Prerequisites for CLI](#prerequisites-for-cli)
     1. [Download](#download)
-    1. [Environment variables for CLI](#environment-variables-for-cli)
     1. [Run command](#run-command)
 1. [Demonstrate using Docker](#demonstrate-using-docker)
     1. [Prerequisites for Docker](#prerequisites-for-docker)
-    1. [Docker volumes](#docker-volumes)
-    1. [Docker network](#docker-network)
-    1. [Docker user](#docker-user)
-    1. [Database support](#database-support)
-    1. [External database](#external-database)
     1. [Run Docker container](#run-docker-container)
 1. [Develop](#develop)
     1. [Prerequisites for development](#prerequisites-for-development)
     1. [Clone repository](#clone-repository)
     1. [Build Docker image](#build-docker-image)
-1. [Examples](#examples)
-    1. [Examples of CLI](#examples-of-cli)
-    1. [Examples of Docker](#examples-of-docker)
+    1. [Test Docker image](#test-docker-image)
+    1. [Make package for S3](#make-package-for-s3)
 1. [Advanced](#advanced)
-    1. [Configuration](#configuration)
 1. [Errors](#errors)
 1. [References](#references)
 
@@ -126,31 +117,22 @@ These are "one-time tasks" which may already have been completed.
 
 1. The following software programs need to be installed:
     1. [docker](https://github.com/Senzing/knowledge-base/blob/master/HOWTO/install-docker.md)
-1. [Install Senzing using Docker](https://github.com/Senzing/knowledge-base/blob/master/HOWTO/install-senzing-using-docker.md)
-    1. If using Docker with a previous "system install" of Senzing,
-       see [how to use Docker with system install](https://github.com/Senzing/knowledge-base/blob/master/HOWTO/use-docker-with-system-install.md).
-1. [Configure Senzing database using Docker](https://github.com/Senzing/knowledge-base/blob/master/HOWTO/configure-senzing-database-using-docker.md)
-1. [Configure Senzing using Docker](https://github.com/Senzing/knowledge-base/blob/master/HOWTO/configure-senzing-using-docker.md)
 
 ### Run Docker container
-
-Although the `Docker run` command looks complex,
-it accounts for all of the optional variations described above.
-Unset `*_PARAMETER` environment variables have no effect on the
-`docker run` command and may be removed or remain.
 
 1. Run Docker container.
    Example:
 
     ```console
-    sudo docker run \
+    docker run \
       --interactive \
       --rm \
       --tty \
-      senzing/template
+      senzing/self-signed-certificate
     ```
 
-1. For more examples of use, see [Examples of Docker](#examples-of-docker).
+    Note:  Because this is built to run in an AWS Lambda environment,
+    errors will be seen when running outside of that environment.
 
 ## Develop
 
@@ -181,44 +163,6 @@ see [Environment Variables](https://github.com/Senzing/knowledge-base/blob/maste
     ```
 
 1. Using the environment variables values just set, follow steps in [clone-repository](https://github.com/Senzing/knowledge-base/blob/master/HOWTO/clone-repository.md) to install the Git repository.
-
-### Make package
-
-Make sure that the `python3 --version` used to run the `pip3 install` command is the same
-as the python version seen in the AWS Lambda definition (i.e. the `Runtime:` parameter).
-If not the python packages may not be the correct version.
-
-1. Install dependencies.
-   Example:
-
-    ```console
-    cd ${GIT_REPOSITORY_DIR}
-    pip3 install \
-        --target ./package \
-        cffi \
-        cfnresponse \
-        pyOpenSSL
-    ```
-
-1. Compress dependencies.
-   Example:
-
-    ```console
-    cd ${GIT_REPOSITORY_DIR}/package
-    zip -r ../self-signed-certificate.zip .
-    ```
-
-1. Add `self_signed_certificate.py` to compressed file.
-   Example:
-
-    ```console
-    cd ${GIT_REPOSITORY_DIR}
-    zip -g self-signed-certificate.zip self_signed_certificate.py
-    ```
-
-#### Make package references
-
-1. [Creating a function with runtime dependencies](https://docs.aws.amazon.com/lambda/latest/dg/python-package-create.html#python-package-create-with-dependency)
 
 ### Build Docker image
 
@@ -272,18 +216,7 @@ logging into AWS Elastic Container Registry (ECR) is required.
 
 ### Test Docker image
 
-1. A simple test.
-   Example:
-
-    ```console
-    docker run \
-      --interactive \
-      --rm \
-      --tty \
-      senzing/self-signed-certificate
-    ```
-
-1. To prepare for a more sophisticated test, download the
+1. Download the
    [AWS Lambda Runtime Interface Emulator](https://github.com/aws/aws-lambda-runtime-interface-emulator)
    and make executable.
    Example:
@@ -326,6 +259,40 @@ logging into AWS Elastic Container Registry (ECR) is required.
     EOF
     ```
 
+### Make package for S3
+
+Make sure that the `python3 --version` used to run the `pip3 install` command is the same
+as the python version seen in the AWS Lambda definition (i.e. the `Runtime:` parameter).
+If not the python packages may not be the correct version.
+
+1. Install dependencies.
+   Example:
+
+    ```console
+    cd ${GIT_REPOSITORY_DIR}
+    pip3 install \
+        --target ./package \
+        cffi \
+        cfnresponse \
+        pyOpenSSL
+    ```
+
+1. Compress dependencies.
+   Example:
+
+    ```console
+    cd ${GIT_REPOSITORY_DIR}/package
+    zip -r ../self-signed-certificate.zip .
+    ```
+
+1. Add `self_signed_certificate.py` to compressed file.
+   Example:
+
+    ```console
+    cd ${GIT_REPOSITORY_DIR}
+    zip -g self-signed-certificate.zip self_signed_certificate.py
+    ```
+
 ## Advanced
 
 ## Errors
@@ -335,3 +302,4 @@ logging into AWS Elastic Container Registry (ECR) is required.
 ## References
 
 1. [PyPi - awslambdaric](https://pypi.org/project/awslambdaric/)
+1. [Creating a function with runtime dependencies](https://docs.aws.amazon.com/lambda/latest/dg/python-package-create.html#python-package-create-with-dependency)
