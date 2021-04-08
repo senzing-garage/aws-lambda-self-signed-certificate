@@ -283,7 +283,7 @@ logging into AWS Elastic Container Registry (ECR) is required.
       senzing/self-signed-certificate
     ```
 
-1. To prepare for a more sophisticate test, download the
+1. To prepare for a more sophisticated test, download the
    [AWS Lambda Runtime Interface Emulator](https://github.com/aws/aws-lambda-runtime-interface-emulator)
    and make executable.
    Example:
@@ -299,12 +299,12 @@ logging into AWS Elastic Container Registry (ECR) is required.
 
     ```console
     docker run \
+      --entrypoint /aws-lambda/aws-lambda-rie \
       --interactive \
-      --volume ~/aws-lambda-rie:/aws-lambda \
       --publish 9001:8080 \
       --rm \
       --tty \
-      --entrypoint /aws-lambda/aws-lambda-rie \
+      --volume ~/aws-lambda-rie:/aws-lambda \
       senzing/self-signed-certificate \
         /var/lang/bin/python -m awslambdaric self_signed_certificate.handler
     ```
