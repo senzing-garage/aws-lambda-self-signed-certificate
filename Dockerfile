@@ -1,7 +1,7 @@
 ARG BASE_IMAGE=public.ecr.aws/lambda/python:3.8
 FROM ${BASE_IMAGE}
 
-ENV REFRESHED_AT=2021-12-07
+ENV REFRESHED_AT=2022-01-06
 
 LABEL Name="senzing/self-signed-certificate" \
       Maintainer="support@senzing.com" \
