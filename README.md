@@ -195,7 +195,7 @@ logging into AWS Elastic Container Registry (ECR) is required.
     ```console
     sudo docker build \
       --tag senzing/template \
-      https://github.com/senzing/template-docker.git
+      https://github.com/senzing/template-docker.git#main
     ```
 
 1. **Option #2:** Using `docker` command and local repository.
