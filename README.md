@@ -212,8 +212,6 @@ logging into AWS Elastic Container Registry (ECR) is required.
     sudo make docker-build
     ```
 
-    Note: `sudo make docker-build-development-cache` can be used to create cached Docker layers.
-
 ### Test Docker image
 
 1. Download the
