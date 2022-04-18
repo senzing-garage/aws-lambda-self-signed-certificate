@@ -1,26 +1,28 @@
 #! /usr/bin/env python3
 
-# -----------------------------------------------------------------------------
-# self_signed_certificate.py for creating self-signed certificates.
-# -----------------------------------------------------------------------------
+'''
+self_signed_certificate.py for creating self-signed certificates.
+'''
 
-from OpenSSL import crypto
-import datetime
-from json import JSONEncoder
+# Import from standard library. https://docs.python.org/3/library/
+
 import json
+import linecache
 import logging
 import os
 import random
 import sys
-import time
 import traceback
 
+# Import from https://pypi.org/
+
+from OpenSSL import crypto
 import cfnresponse
 
 __all__ = []
 __version__ = "1.0.0"  # See https://www.python.org/dev/peps/pep-0396/
 __date__ = '2021-04-06'
-__updated__ = '2021-04-08'
+__updated__ = '2022-04-18'
 
 SENZING_PRODUCT_ID = "5019"  # See https://github.com/Senzing/knowledge-base/blob/main/lists/senzing-product-ids.md
 
@@ -34,7 +36,7 @@ TEN_YEARS_IN_SECONDS = 10 * ONE_YEAR_IN_SECONDS
 
 # Configure logging. See https://docs.python.org/2/library/logging.html#levels
 
-log_level_map = {
+LOG_LEVEL_MAP = {
     "notset": logging.NOTSET,
     "debug": logging.DEBUG,
     "info": logging.INFO,
@@ -44,10 +46,10 @@ log_level_map = {
     "critical": logging.CRITICAL
 }
 
-log_format = '%(asctime)s %(message)s'
-log_level_parameter = os.getenv("SENZING_LOG_LEVEL", "info").lower()
-log_level = log_level_map.get(log_level_parameter, logging.INFO)
-logging.basicConfig(format=log_format, level=log_level)
+LOG_FORMAT = '%(asctime)s %(message)s'
+LOG_LEVEL_PARAMETER = os.getenv("SENZING_LOG_LEVEL", "info").lower()
+LOG_LEVEL = LOG_LEVEL_MAP.get(LOG_LEVEL_PARAMETER, logging.INFO)
+logging.basicConfig(format=LOG_FORMAT, level=LOG_LEVEL)
 
 # -----------------------------------------------------------------------------
 # Message handling
@@ -64,7 +66,7 @@ MESSAGE_WARN = 300
 MESSAGE_ERROR = 700
 MESSAGE_DEBUG = 900
 
-message_dictionary = {
+MESSAGE_DICTIONARY = {
     "100": "senzing-" + SENZING_PRODUCT_ID + "{0:04d}I",
     "101": "Event: {0}",
     "102": "Context: {0}",
@@ -79,37 +81,42 @@ message_dictionary = {
 
 
 def message(index, *args):
+    ''' Return an instantiated message. '''
     index_string = str(index)
-    template = message_dictionary.get(index_string, "No message for index {0}.".format(index_string))
+    template = MESSAGE_DICTIONARY.get(index_string, "No message for index {0}.".format(index_string))
     return template.format(*args)
 
 
 def message_generic(generic_index, index, *args):
-    index_string = str(index)
+    ''' Return a formatted message. '''
     return "{0} {1}".format(message(generic_index, index), message(index, *args))
 
 
 def message_info(index, *args):
+    ''' Return an info message. '''
     return message_generic(MESSAGE_INFO, index, *args)
 
 
 def message_warning(index, *args):
+    ''' Return a warning message. '''
     return message_generic(MESSAGE_WARN, index, *args)
 
 
 def message_error(index, *args):
+    ''' Return an error message. '''
     return message_generic(MESSAGE_ERROR, index, *args)
 
 
 def message_debug(index, *args):
+    ''' Return a debug message. '''
     return message_generic(MESSAGE_DEBUG, index, *args)
 
 
 def get_exception():
     ''' Get details about an exception. '''
-    exception_type, exception_object, traceback = sys.exc_info()
-    frame = traceback.tb_frame
-    line_number = traceback.tb_lineno
+    exception_type, exception_object, local_traceback = sys.exc_info()
+    frame = local_traceback.tb_frame
+    line_number = local_traceback.tb_lineno
     filename = frame.f_code.co_filename
     linecache.checkcache(filename)
     line = linecache.getline(filename, line_number, frame.f_globals)
@@ -119,7 +126,7 @@ def get_exception():
         "line": line.strip(),
         "exception": exception_object,
         "type": exception_type,
-        "traceback": traceback,
+        "traceback": local_traceback,
     }
 
 # -----------------------------------------------------------------------------
@@ -318,8 +325,8 @@ def handler(event, context):
 
         logger.info(message_info(103, json.dumps(response)))
 
-    except Exception as e:
-        logger.error(message_error(997, e))
+    except Exception as err:
+        logger.error(message_error(997, err))
         traceback.print_exc()
         result = cfnresponse.FAILED
     finally:
@@ -335,12 +342,12 @@ def handler(event, context):
 
 if __name__ == "__main__":
 
-    event = {
+    EVENT = {
         "RequestType": "Create",
         "ResponseURL": ""
     }
-    context = {}
+    CONTEXT = {}
 
     # Note: This will error because of cfnresponse.send() not having a context "log_stream_name".
 
-    handler(event, context)
+    handler(EVENT, CONTEXT)
