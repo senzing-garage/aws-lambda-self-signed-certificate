@@ -166,7 +166,7 @@ see [Environment Variables](https://github.com/Senzing/knowledge-base/blob/main/
 
 ### Build Docker image
 
-Since the Docker image is based on `public.ecr.aws/lambda/python:3.8`,
+Since the Docker image is based on `public.ecr.aws/lambda/python:3.9`,
 logging into AWS Elastic Container Registry (ECR) is required.
 
 1. Set AWS environment variables.
@@ -211,8 +211,6 @@ logging into AWS Elastic Container Registry (ECR) is required.
     cd ${GIT_REPOSITORY_DIR}
     sudo make docker-build
     ```
-
-    Note: `sudo make docker-build-development-cache` can be used to create cached Docker layers.
 
 ### Test Docker image
 
