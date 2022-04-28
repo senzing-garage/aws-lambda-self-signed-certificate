@@ -1,5 +1,5 @@
 .DS_Store
 package/
-self-signed-certificate.zip
+self-signed-certificate-*.zip
 target/
 python/

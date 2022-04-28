@@ -4,7 +4,5 @@ disable=
     consider-using-f-string,
     import-error,
     line-too-long,
-good-names=
-    self-signed-certificate,
 ignore=
     __init__.py,
