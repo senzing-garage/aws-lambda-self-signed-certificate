@@ -304,10 +304,10 @@ If not the python packages may not be the correct version.
 
     ```console
     cd ${GIT_REPOSITORY_DIR}
-    zip -g self-signed-certificate.zip self-signed-certificate-${SENZING_SELF_SIGNED_CERTIFICATE_VERSION}.zip
+    zip -g self-signed-certificate-${SENZING_SELF_SIGNED_CERTIFICATE_VERSION}.zip self-signed-certificate.py
     ```
 
-1. Upload `self-signed-certificate.zip` to AWS S3.
+1. Upload `self-signed-certificate-0.0.0.zip` to AWS S3.
 
 ## Advanced
 
