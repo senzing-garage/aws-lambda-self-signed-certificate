@@ -267,7 +267,7 @@ If not the python packages may not be the correct version.
    Example:
 
     ```console
-    export SENZING_SELF_SIGNED_CERTIFICATE_VERSION=1.0.3
+    export SENZING_SELF_SIGNED_CERTIFICATE_VERSION=1.0.2
     ```
 
 
