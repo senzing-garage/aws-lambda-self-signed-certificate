@@ -263,22 +263,40 @@ Make sure that the `python3 --version` used to run the `pip3 install` command is
 as the python version seen in the AWS Lambda definition (i.e. the `Runtime:` parameter).
 If not the python packages may not be the correct version.
 
-1. Install dependencies.
+1. :pencil2: Identify version of ZIP file.
+   Example:
+
+    ```console
+    export SENZING_SELF_SIGNED_CERTIFICATE_VERSION=1.0.2
+    ```
+
+
+1. Prepare directories.
+   Example:
+
+    ```console
+    sudo rm -rf ${GIT_REPOSITORY_DIR}/python
+    mkdir -p ${GIT_REPOSITORY_DIR}/python/lib/python3.8/site-packages
+    docker pull public.ecr.aws/sam/build-python3.8
+    ```
+
+1. Download dependencies.
    Example:
 
     ```console
     cd ${GIT_REPOSITORY_DIR}
-    pip3 install \
-        --requirement requirements.txt \
-        --target ./package
+    sudo docker run \
+        -v "$PWD":/var/task \
+        "public.ecr.aws/sam/build-python3.8" \
+            /bin/sh -c "pip install -r requirements.txt -t python/lib/python3.8/site-packages/; exit"
     ```
 
 1. Compress dependencies.
    Example:
 
     ```console
-    cd ${GIT_REPOSITORY_DIR}/package
-    zip -r ../self-signed-certificate.zip .
+    cd ${GIT_REPOSITORY_DIR}/python/lib/python3.8/site-packages
+    zip -r ${GIT_REPOSITORY_DIR}/self-signed-certificate-${SENZING_SELF_SIGNED_CERTIFICATE_VERSION}.zip .
     ```
 
 1. Add `self_signed_certificate.py` to compressed file.
@@ -286,10 +304,10 @@ If not the python packages may not be the correct version.
 
     ```console
     cd ${GIT_REPOSITORY_DIR}
-    zip -g self-signed-certificate.zip self_signed_certificate.py
+    zip -g self-signed-certificate-${SENZING_SELF_SIGNED_CERTIFICATE_VERSION}.zip self_signed_certificate.py
     ```
 
-1. Upload `self-signed-certificate.zip` to AWS S3.
+1. Upload `self-signed-certificate-0.0.0.zip` to AWS S3.
 
 ## Advanced
 

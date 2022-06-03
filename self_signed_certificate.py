@@ -22,9 +22,9 @@ import cfnresponse
 # Metadata
 
 __all__ = []
-__version__ = "1.0.0"  # See https://www.python.org/dev/peps/pep-0396/
+__version__ = "1.0.2"  # See https://www.python.org/dev/peps/pep-0396/
 __date__ = '2021-04-06'
-__updated__ = '2022-04-19'
+__updated__ = '2022-04-28'
 
 SENZING_PRODUCT_ID = "5019"  # See https://github.com/Senzing/knowledge-base/blob/main/lists/senzing-product-ids.md
 
