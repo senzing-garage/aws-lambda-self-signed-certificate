@@ -1,11 +1,11 @@
 ARG BASE_IMAGE=public.ecr.aws/lambda/python:3.8@sha256:20f33cfb14df6d6af0564ba53335d1048682aaf410c881ddc6fb13ceb2e74a8e
 FROM ${BASE_IMAGE}
 
-ENV REFRESHED_AT=2022-08-25
+ENV REFRESHED_AT=2022-09-29
 
 LABEL Name="senzing/self-signed-certificate" \
       Maintainer="support@senzing.com" \
-      Version="1.0.1"
+      Version="1.0.3"
 
 HEALTHCHECK CMD ["/app/healthcheck.sh"]
 
