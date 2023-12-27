@@ -282,7 +282,6 @@ If not the python packages may not be the correct version.
     export SENZING_SELF_SIGNED_CERTIFICATE_VERSION=1.0.2
     ```
 
-
 1. Prepare directories.
    Example:
 

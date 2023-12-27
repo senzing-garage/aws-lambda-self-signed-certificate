@@ -3,3 +3,4 @@ package/
 self-signed-certificate-*.zip
 target/
 python/
+.history
