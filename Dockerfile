@@ -4,8 +4,8 @@ FROM ${BASE_IMAGE}
 ENV REFRESHED_AT=2024-05-22
 
 LABEL Name="senzing/self-signed-certificate" \
-      Maintainer="support@senzing.com" \
-      Version="1.0.3"
+  Maintainer="support@senzing.com" \
+  Version="1.0.4"
 
 HEALTHCHECK CMD ["/app/healthcheck.sh"]
 
@@ -17,9 +17,9 @@ USER root
 
 COPY requirements.txt .
 RUN pip3 install --upgrade pip \
- && pip3 install -r requirements.txt \
- && pip3 install awslambdaric \
- && rm requirements.txt
+  && pip3 install -r requirements.txt \
+  && pip3 install awslambdaric \
+  && rm requirements.txt
 
 # Copy files from repository.
 
