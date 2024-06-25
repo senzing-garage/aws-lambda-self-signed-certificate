@@ -5,7 +5,7 @@ ENV REFRESHED_AT=2024-06-24
 
 LABEL Name="senzing/self-signed-certificate" \
   Maintainer="support@senzing.com" \
-  Version="1.0.4"
+  Version="1.0.5"
 
 HEALTHCHECK CMD ["/app/healthcheck.sh"]
 

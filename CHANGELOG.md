@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [markdownlint](https://dlaa.me/markdownlint/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2024-06-24
+
+### Changed in 1.0.5
+
+- In `Dockerfile`, updated FROM instruction to `public.ecr.aws/lambda/python:3.8@sha256:b0c0e28eda3ee06bba06c24aad52d5dd1307720c20df86ca9a8d381496fa8300`
+
 ## [1.0.4] - 2024-05-22
 
 ### Changed in 1.0.4
