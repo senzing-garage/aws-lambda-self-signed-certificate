@@ -3,4 +3,9 @@ package/
 self-signed-certificate-*.zip
 target/
 python/
+
+# Visual Studio code
+.vscode/*
+!.vscode/cspell.json
+*.code-workspace
 .history
