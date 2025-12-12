@@ -7,5 +7,6 @@ python/
 # Visual Studio code
 .vscode/*
 !.vscode/cspell.json
+!.vscode/settings.json
 *.code-workspace
 .history
