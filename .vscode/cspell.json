@@ -13,9 +13,11 @@
     "cooldown",
     "dockerfiles",
     "DOCKERHUB",
+    "docktermj",
     "esbenp",
     "gmtime",
     "ICLA",
+    "kernelsam",
     "keyid",
     "pydev",
     "pylint",
@@ -25,5 +27,7 @@
     "stackoverflow",
     "toplevel"
   ],
-  "ignorePaths": [".git/**"]
+  "ignorePaths": [
+    ".git/**"
+  ]
 }
